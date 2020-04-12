@@ -3,6 +3,11 @@ xrandr-reference
 
 =======
 as of the time of writing, the tl;dr is the 3 shell scripts do my trick. Might try without the arandr export one...
+also, if laptop screen looks too magnified, try some scaling command like
+
+```bash
+ $  xrandr --output eDP-1 --scale 1.2x1.2
+```
 
 good article: https://blog.summercat.com/configuring-mixed-dpi-monitors-with-xrandr.html
 
@@ -22,10 +27,10 @@ good article: https://blog.summercat.com/configuring-mixed-dpi-monitors-with-xra
     => overall canvas should be `6000x3840` (this factors in the rotation)
 12. We will use `--rotate right` in the external monitor arguments alongwith providing mode `2560x1440` (not the flipped)
 
-```
+```bash
 # xrandr --dpi 276 --fb 7040x3960 --output eDP-1 --mode 3200x1800 --output DP-1-2 --scale 2x2 --pos 3200x0 --panning 3840x2160+3200+0
 ```
-```
+```bash
 xrandr --dpi 331 --fb 6000x3840 --output eDP-1 --mode 3840x2160 --pos 0x1200 --output DP-3 --scale 1.5x1.5 --pos 3840x0 --panning 2160x1680+3840+0 --rotate right
 ```
 produced screen 2 a bit more zoomed in than needed => we need more scale
@@ -34,7 +39,7 @@ produced screen 2 placed higher than needed => --pos y value of screen 1 needs t
 scale 1.8 => `4608x2592`
 => total canvas `6432x4608`
 
-```
+```bash
 xrandr --dpi 331 --fb 6432x4608 --output eDP-1 --mode 3840x2160 --pos 0x400 --output DP-3 --scale 1.8x1.8 --pos 3840x0 --panning 2592x2448+3840+0 --rotate right
 ```
 made external screen even more zoomed => need to _reduce_ the scale factor, not increase it
@@ -44,7 +49,7 @@ let's go with `1.2` (as opposed to `1.5` earlier)
 => `3072x1728`
 => total canvas size `5568x3072`
 
-```
+```bash
 xrandr --dpi 331 --fb 5568x3072 --output eDP-1 --mode 3840x2160 --pos 0x300 --output DP-3 --scale 1.2x1.2 --pos 3840x0 --panning 1728x912+3840+0 --rotate right
 ```
 ============
@@ -59,7 +64,7 @@ I used 2 commands that got shit working great!
 1) scale eDP-1 by `1.2x1.2`
 2) scale DP-3 by `2x2`
 
-```
+```bash
  $  xrandr --output eDP-1 --mode 3840x2160 --scale 1.2x1.2
  2020/04/11 16:12  sankalp  ~ 
  $  xrandr --output eDP-1 --mode 3200x1800 --scale 1.2x1.2
