@@ -1,13 +1,19 @@
 # xrandr-stuff
 xrandr-reference
 
-=======
-as of the time of writing, the tl;dr is the 3 shell scripts do my trick. Might try without the arandr export one...
+What works
+----------
+
+As of the time of writing, the tl;dr is the 3 shell scripts do my trick. Might try without the arandr export one...
 also, if laptop screen looks too magnified, try some scaling command like
 
 ```bash
  $  xrandr --output eDP-1 --scale 1.2x1.2
 ```
+and finally can use `arandr` to adjust the positioning and apply.
+
+The rest of the stuff, not necessarily useful
+-----
 
 good article: https://blog.summercat.com/configuring-mixed-dpi-monitors-with-xrandr.html
 
