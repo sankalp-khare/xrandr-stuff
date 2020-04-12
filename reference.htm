@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<head prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article#">
+<meta charset="utf-8">
+<title>Configuring mixed DPI monitors with xrandr | The One and the Many</title>
+<meta name="viewport" content="width=device-width, user-scalable=no">
+<meta name="description" content="I use xrandr to configure a dual monitor setup with a high DPI and low DPI monitor on Linux. I also use it to switch back and forth between a dual monitor and a single monitor setup.">
+<meta property="og:title" content="Configuring mixed DPI monitors with xrandr | The One and the Many">
+<meta property="og:type" content="article">
+<meta property="og:image" content="https://blog.summercat.com/will-og.jpg">
+<meta property="og:url" content="https://blog.summercat.com/configuring-mixed-dpi-monitors-with-xrandr.html">
+<meta property="og:description" content="I use xrandr to configure a dual monitor setup with a high DPI and low DPI monitor on Linux. I also use it to switch back and forth between a dual monitor and a single monitor setup.">
+<link rel="alternate" type="application/rss+xml" href="rss.xml">
+<style>
+	body {
+		font-family: Helvetica, serif;
+		margin: 0;
+	}
+	#site-title a {
+		text-decoration: none;
+	}
+	h1 {
+		font-size: xx-large;
+		font-weight: 500;
+	}
+	h2,
+	h3,
+	h4,
+	h5,
+	h6 {
+		font-size: x-large;
+		font-weight: 500;
+		margin: 7% 0 3% 0;
+	}
+	#wrapper {
+		max-width: 70ch;
+		margin: 0 auto 0 auto;
+	}
+	a {
+		color: gray;
+	}
+	pre {
+		margin: 0 0 0 5%;
+		overflow-x: auto;
+	}
+	ul, ol {
+		margin: 0;
+		padding: 0;
+	}
+	li {
+		margin: 0 0 0 2em;
+		padding: 0;
+	}
+	img {
+		max-width: 100%;
+		margin: 0 auto 0 auto;
+	}
+	#site-title {
+		background-color: #4c9ed9;
+		padding: 15px;
+	}
+	#site-title h1 {
+		margin: 0;
+	}
+	#site-title a {
+		color: white;
+	}
+	nav {
+		background-color: #f1f1f1;
+		padding: 10px;
+	}
+	nav a {
+		margin: 0 0 0 15px;
+		text-decoration: none;
+	}
+	nav a:hover {
+		color: #a7a7a7;
+	}
+	.attribution {
+		font-size: small;
+	}
+	.comment {
+		margin: 0 0 25px 0;
+		border-bottom: 1px dotted gray;
+	}
+	.comment-name,
+	.comment time {
+		font-size: smaller;
+		color: gray;
+	}
+	.comment-text {
+		white-space: pre-line;
+		padding: 1em 0 1em 1em;
+		font-size: smaller;
+	}
+	#comment-form {
+		width: 70ch;
+	}
+	#comment-name,
+	#comment-email,
+	#comment-text {
+		display: block;
+		width: 100%;
+	}
+	#comment-text {
+		height: 10em;
+	}
+	footer {
+		margin: 25px 0 0 0;
+		background-color: #f1f1f1;
+		padding: 15px;
+	}
+	footer a {
+		margin: 0 0 0 15px;
+		text-decoration: none;
+	}
+	#feed-icon {
+		width: 15px;
+		height: 15px;
+	}
+	time {
+		font-style: italic;
+		font-size: smaller;
+	}
+
+	.vimCodeElement {
+		white-space: pre-wrap;
+		font-family: monospace;
+		color: #404040;
+		background-color: #f0f0f0;
+	}
+	.vimCodeElement .Comment {
+		color: #9098a0;
+		background-color: #f0f0f0;
+	}
+	.vimCodeElement .Statement {
+		color: #606060;
+		background-color: #e0e0e0;
+	}
+	.vimCodeElement .Identifier {
+		color: #608050;
+		background-color: #c0e0c0;
+	}
+	.vimCodeElement .Label {
+		color: #606060;
+		background-color: #e0e0e0;
+		text-decoration: underline;
+	}
+	.vimCodeElement .PreProc {
+		color: #605080;
+		background-color: #dcd8e0;
+	}
+	.vimCodeElement .Constant {
+		color: #508040;
+		background-color: #f0f0f0;
+	}
+	.vimCodeElement .Special {
+		color: #603020;
+		background-color: #f0ece8;
+	}
+	.vimCodeElement .Number {
+		color: #508040;
+		background-color: #f0f0f0;
+	}
+
+	@media all and (max-width: 600px) {
+		#wrapper {
+			max-width: 100%;
+		}
+		#comment-form {
+			width: 100%;
+		}
+	}
+</style>
+<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-13208382-3', 'auto');
+ga('send', 'pageview');
+</script>
+</head>
+<div id="site-title">
+	<h1><a href="index.html">The One and the Many</a></h1>
+</div>
+<nav>
+	<a href="index.html">Home</a>
+	<a href="about.html">About</a>
+</nav>
+<div id="wrapper">
+<article>
+<h1>Configuring mixed DPI monitors with xrandr</h1>
+
+
+<p>I've recently started using a high DPI laptop together with a regular DPI
+monitor in a dual monitor setup. While there are GUI tools to configure
+dual monitors, I wanted to do it through the CLI. The usual way to
+configure monitor settings via the CLI in Linux is with a program called
+<a href="https://www.x.org/wiki/Projects/XRandR/"><code>xrandr</code></a>. As it took me a bit of
+trial and error to get everything working well, I thought it would be
+useful to write about the commands I settled on and how they work.</p>
+
+<h2>The setup</h2>
+
+<p>The laptop sits on the left of the monitor. The tops of both line up.</p>
+
+<p>Usually I want to use both monitors at the same time. However I've found it
+necessary to disable one of them, usually the laptop, when I want to share
+my screen. This means it is important that I can easily switch back and
+forth between dual and single monitors.</p>
+
+<p>It is also important that I retain the ability to use the laptop without
+the external monitor.</p>
+
+<h2>The tricky parts</h2>
+
+<p>There were two aspects I found problematic:</p>
+
+<p>First, the fact that the two monitors have differing DPI means each monitor
+needs different settings to account for that. <code>xrandr</code> allows setting the
+DPI via <code>--dpi</code>, but this applies globally to all monitors. I dealt with
+this by setting the global DPI to that of the highest DPI monitor, and then
+used <code>--scale</code> to adjust the lower DPI monitor.</p>
+
+<p>Second, switching back and forth between dual monitors to one monitor lead
+to interesting behaviour. For example, I kept losing the scale setting on
+the lower DPI monitor.</p>
+
+<p>I had a semi-working setup with little trouble, but it involved restarting
+<code>X</code> when I wanted to switch between dual and single monitors. This worked,
+but obviously was inconvenient. I wanted a solution that would work without
+restarts.</p>
+
+<h2>The solution</h2>
+
+<p>I came up with two <code>xrandr</code> commands. One configures to use both monitors,
+and the other configures to use only the external monitor.</p>
+
+<h3>Dual monitors</h3>
+
+<p>When I want to use both monitors, this is the command I run:</p>
+
+<pre><code>xrandr --dpi 276 --fb 7040x3960 \
+    --output eDP-1 --mode 3200x1800 \
+    --output DP-1-2 --scale 2x2 --pos 3200x0 --panning 3840x2160+3200+0
+</code></pre>
+
+<p>Here's an explanation of the options:</p>
+
+<ul>
+<li>Global options:
+<ul>
+<li><code>--dpi 276</code> sets the DPI to <code>276</code>.</li>
+<li><code>--fb 7040x3960</code> creates one screen with resolution <code>7040x3960</code>. This
+is the combined resolution of the two monitors. The high DPI monitor
+has <code>3200x1800</code> resolution. The lower DPI monitor has <code>1920x1080</code>
+resolution, but I double it as I scale it by 2 (see below). Combine
+these like so: <code>3200+1920*2 x 1800+1080*2 = 7040x3960</code>. Both monitors
+share this screen.</li>
+</ul></li>
+<li>High DPI monitor options (<code>--output eDP-1</code>):
+<ul>
+<li><code>--mode 3200x1800</code> says to use resolution <code>3200x1800</code>. This is the
+default, but specifying it is necessary if the monitor is disabled (as it
+is when using the external monitor by itself) as it enables the
+monitor.</li>
+</ul></li>
+<li>Lower DPI monitor options (<code>--output DP-1-2</code>):
+<ul>
+<li><code>--scale 2x2</code> is similar to zooming out. This is necessary as we set
+the DPI globally to that of the high DPI monitor.</li>
+<li><code>--pos</code> positions it to the right of the laptop monitor.</li>
+<li><code>--panning</code> allows our pointer to access the whole area.</li>
+</ul></li>
+</ul>
+
+<h3>Single monitor (external)</h3>
+
+<p>If I want to use only the lower DPI monitor, then I run this command:</p>
+
+<pre><code>xrandr --dpi 276 --fb 3840x2160 \
+    --output eDP-1 --off \
+    --output DP-1-2 --scale 2x2 --panning 3840x2160
+</code></pre>
+
+<p>Most of these options are similar to the first command's. The main
+difference is disabling the laptop monitor with <code>--output eDP-1 --off</code>.</p>
+
+<p>Note <code>3840x2160</code> comes from <code>1920*2 x 1080*2</code>.</p>
+
+<p>You might wonder why I set high DPI and scale the lower DPI monitor here.
+Wouldn't it be simpler to set a lower DPI and use the monitor's native
+resolution? That's possible, but since I've configured other things (such
+as my <code>X</code> terminal fonts) to a size suitable for a high DPI screen, I'd
+have to adjust settings elsewhere. Keeping the DPI the same and continuing
+to scale allows me to avoid that. Since I'm scaling, I need to configure a
+large screen and set panning for the same reasons as before.</p>
+
+<h3>Single monitor (laptop)</h3>
+
+<p>This is the default state prior to running any <code>xrandr</code> commands. In theory
+I could have another command for this, but so far I haven't needed to
+switch to this.</p>
+
+<h2>A final note: <code>--mode</code> vs <code>--auto</code></h2>
+
+<p>I initially tried using <code>--output eDP-1 --auto</code> when I wanted to enable the
+laptop monitor after disabling it. However, I found this lost the <code>--scale</code>
+setting, so I had to either restart <code>X</code> or run the same <code>xrandr</code> command
+twice. Using <code>--mode</code> does not have this problem.</p>
+
+<h2>Resources</h2>
+
+<p>I did a bunch of searching figuring out this setup. The two best resources
+I found were these:</p>
+
+<ul>
+<li>The <code>xrandr(1)</code> man page. It breaks down <code>xrandr</code>'s options by those
+that apply globally vs. those that apply per output which I found
+helpful.</li>
+<li>The Arch Linux wiki <a href="https://wiki.archlinux.org/index.php/HiDPI">HiDPI
+article</a>. This article has
+a lot of good high DPI related information, including many <code>xrandr</code>
+examples.</li>
+</ul>
+
+<p>Tags: Linux, cli, xrandr, monitors, laptop</p>
+
+<h2>Comments</h2>
+
+<div class="comment">
+	<div class="comment-header">
+		Posted by <span class="comment-name">Felipe</span>
+		at <time>2018-05-11 06:46:58 -0700 PDT</time>
+	</div>
+	<div class="comment-text">I have the same problem and pretty much the same configuration. I own a dell xps 13.3&#39; and the only difference is the low dpi monitor with a 2560x1080 resolution. I am using DisplayLink and still I couldn&#39;t manage to make both work nicely together. My low dpi
+is still displaying everything brutally large. Any help or thoughts would very welcome</div>
+</div>
+
+<div class="comment">
+	<div class="comment-header">
+		Posted by <span class="comment-name">Will Storey</span>
+		at <time>2018-05-12 09:02:43 -0700 PDT</time>
+	</div>
+	<div class="comment-text">Yeah, it sounds like a very similar setup to mine. I&#39;m using a Dell XPS 13 too actually!
+
+What command are you trying? I&#39;d expect something like this to work:
+
+xrandr --dpi 276 --fb 8320x3960 \
+--output eDP-1 --mode 3200x1800 # assuming xps13 is 3200x1800 on eDP-1 \
+--output DP-1-2 --scale 2x2 --pos 3200x0 --panning 5120x2160&#43;3200&#43;0 # monitor
+
+Another thought I have is whether there&#39;s anything else running trying to magically correct settings for you. I run a very basic window manager so I know that nothing interferes, but I&#39;m not sure whether other managers touch these things or not.</div>
+</div>
+
+<div class="comment">
+	<div class="comment-header">
+		Posted by <span class="comment-name">Felipe</span>
+		at <time>2018-05-19 20:42:09 -0700 PDT</time>
+	</div>
+	<div class="comment-text">I use a pretty slim environment (only arch &#43; i3), so im only running xrandr actually. Are you using your USB Type C or are you usings Dell&#39;s Displaylink too? I think it is something with the DisplayLink driver and the scale function not working nice togheter</div>
+</div>
+
+<div class="comment">
+	<div class="comment-header">
+		Posted by <span class="comment-name">Will Storey</span>
+		at <time>2018-05-20 00:54:08 -0700 PDT</time>
+	</div>
+	<div class="comment-text">Ah ok. Yeah if that&#39;s the case then that might be it :-(.
+
+I&#39;m using the monitor through a TB16 dock connected via USB-C. I believe the monitor is connected to the mini DisplayPort output on the dock, but I&#39;m not sure (and can&#39;t check right now as I&#39;m out of town).</div>
+</div>
+
+<div class="comment">
+	<div class="comment-header">
+		Posted by <span class="comment-name">tya99</span>
+		at <time>2018-07-30 07:59:52 -0700 PDT</time>
+	</div>
+	<div class="comment-text">I also use i3 on ArchLinux with a Dell XPS 13&#34; 9370 (native 3840x2160) and I have a Dell 30&#34; 3000WFP (native 2560x1600) monitor. I have DisplayPort with one of those Dell DA300 mobile adaptors, connects to the XPS via USB-C.
+
+I noticed the resolution you&#39;re using is 3200x1800. I found the native resolution for the XPS is 3840x2160. Is there any reason you chose to drop the resolution down one? I also noticed your Xft.dpi is 276. How does that play with scaling GTK and Qt? Ie:
+
+GDK_DPI_SCALE.  This can be useful when using scale-aware GTK&#43; applications together with scale-unaware applications on a high-dpi display. In that case, the font resolution can be doubled to make scale-unaware applications readable, and GDK_DPI_SCALE=0.5 can be set to compensate for that in GTK&#43; applications which are already scaled by setting GDK_SCALE=2. https://developer.gnome.org/gtk3/stable/gtk-x11.html
+
+If you used an odd DPI what would you make GDK_DPI_SCALE?
+
+Currently I use a DPI of 220 I think the reason I made it that was because of GDK_DPI_SCALE
+
+ie https://wiki.archlinux.org/index.php/HiDPI#Qt_5 :
+
+/etc/profile.d/hidpi.sh
+#!/bin/sh
+
+export GDK_SCALE=2
+export GDK_DPI_SCALE=0.5
+
+export QT_AUTO_SCREEN_SCALE_FACTOR=0
+export QT_SCREEN_SCALE_FACTORS=2
+export QT_QPA_PLATFORMTHEME=qt5ct
+
+I saw http://dpi.lv and it says: for a 13.3&#34; monitor at 3200x1800 276 is the correct DPI. The formula they use is [round((sqrt(w * w &#43; h * h)/d))] If I put in 3840x2160 I would get a DPI of 331. How would that work with GDK_DPI_SCALE? I seem to remember that only working in multiples.
+
+--------------------------------------------------------------------------------------------------
+
+I managed to get a single external monitor working with:
+
+xrandr --dpi 220 --fb 5120x3200 \
+    --output eDP1 --off \
+    --output DP1 --scale 2x2 --panning 5120x3200
+
+I am struggling with the panning part for my dual monitor setup. I looked at https://wiki.archlinux.org/index.php/xrandr and the man file and still couldn&#39;t figure that track x track y part out. It&#39;s not very easy to understand.
+
+--panning  widthxheight[&#43;x&#43;y[/track_widthxtrack_height&#43;track_x&#43;track_y[/border_left/border_top/border_right/border_bottom]]]
+
+This option sets the panning  parameters.   As  soon  as  panning  is enabled,  the  CRTC position can change with every pointer move.  The first four parameters specify the total panning area, the  next  four the pointer tracking area (which defaults to the same area). The last four parameters specify the border and  default  to  0.  A  width  or height  set to zero disables panning on the according axis. You typically have to set the screen size with --fb simultaneously.
+
+My external monitor is on the left of my laptop. This is as far as I got:
+
+xrandr --dpi 220 --fb 8960x5360 \
+    --output eDP1 --mode 3840x2160 \
+    --output DP1 --scale 2x2 --pos -2560x0 --panning 5120x3200&#43;2560&#43;0</div>
+</div>
+
+<div class="comment">
+	<div class="comment-header">
+		Posted by <span class="comment-name">tya99</span>
+		at <time>2018-08-01 20:00:45 -0700 PDT</time>
+	</div>
+	<div class="comment-text">I asked about this on arch-general here:
+
+https://lists.archlinux.org/pipermail/arch-general/2018-July/045392.html
+https://lists.archlinux.org/pipermail/arch-general/2018-August/045395.html
+
+One of the posters said the panning thing may have been a work around for a bug in xorg, fixed in 1.20 and to try: https://wiki.archlinux.org/index.php/HiDPI#Side_display
+
+I have found that everything works correctly except for qt5-5.11.1 with this version of Xorg using:
+
+xrandr --output eDP1 --pos 5120x0 --auto \
+       --output DP1 --pos 0x0 --auto --scale 2x2
+
+! xft fonts
+!----------------------------------------------------------------------
+Xft.dpi: 220
+Xft.autohint: 0
+Xft.lcdfilter:  lcddefault
+Xft.hintstyle:  hintfull
+Xft.hinting: 1
+Xft.antialias: 1
+Xft.rgba: rgb
+
+! urxvt
+!---------------------------------------------------------------------
+URxvt*font:     xft:DejaVu Sans Mono for Powerline:size=12: \
+                     minspace=False:antialias=true, \
+                 xft:Segoe UI Emoji:size=12:minspace=False:antialias=true
+
+URxvt*boldFont: xft:DejaVu Sans Mono for Powerline:size=12: \
+                     minspace=False:antialias=true, \
+                 xft:Segoe UI Emoji:size=12:minspace=False:antialias=true
+
+URxvt.letterSpace: -1
+
+export GDK_SCALE=2
+export GDK_DPI_SCALE=0.5
+export QT_AUTO_SCREEN_SCALE_FACTOR=0
+export QT_SCREEN_SCALE_FACTORS=2
+
+The problem with Qt still seems to be that things are scaled to the HiDPI screen and when moved to the LowDPI screen they are, really small.
+
+It was suggested that this could work as the Qt docs explain https://doc.qt.io/qt-5/highdpi.html
+
+QT_SCREEN_SCALE_FACTORS [list] specifies scale factors for each screen. This will not change the size of point sized fonts. This environment variable is mainly useful for debugging, or to work around monitors with wrong EDID information(Extended Display Identification Data).
+
+The format can be either a semicolon-separated list of scale factors in the same order as QGuiApplication::screens(), or a semicolon-separated list of name=value pairs, where name is the same as QScreen::name().
+
+So I tried using export QT_SCREEN_SCALE_FACTORS=&#34;eDP1=2;DP1=1;&#34;
+
+Unfortunately that didn&#39;t work for me. Everything was still scaled to the HiDPI screen.
+
+I read here https://phabricator.kde.org/D12405#251159
+
+&gt; graesslin added a subscriber: graesslin.Apr 21 2018, 7:01 PM
+&gt; I also cannot imagine this to work due to the fact how X11 works. There is just no mapping from window to screen. No window can know on which screen it is. Not even KWin knows that as the window manager (screen is not a constant property, but evaluated every time it is accessed, it&#39;s based on the distance to closest screen). Especially for overlapping windows it&#39;s very difficult to try to get to which screen it belongs. It gets even more complicated when things like panning and overlapping screens get into it. So I wouldn&#39;t trust this thing in Qt to work due to the pain we have in KWin especially with these problems.
+
+&gt; graesslin added a comment.Apr 21 2018, 7:52 PM
+&gt; I&#39;m pointing out that I&#39;m in general against any risky changes on X11. If users want to use this features: Wayland is there. KWin is feature frozen on X11 and I highly suggest to the Plasma community to decide the same at the sprint. We will have less maintenance issues due to it.
+
+Sometimes X shits me. A lot of things are so much simpler on Wayland. Unfortunately until https://github.com/swaywm/sway/issues/1047 https://bugzilla.mozilla.org/show_bug.cgi?id=635134 - Firefox/Thunderbird have blurry fonts on Wayland when running through XWayland, that means I am stuck with X.</div>
+</div>
+
+<div class="comment">
+	<div class="comment-header">
+		Posted by <span class="comment-name">tya99</span>
+		at <time>2018-08-02 04:44:03 -0700 PDT</time>
+	</div>
+	<div class="comment-text">&gt; Second, switching back and forth between dual monitors to one monitor lead to interesting behaviour. For example, I kept losing the scale setting on the lower DPI monitor.
+
+I think that may be fixed in Xorg 1.20. I couldn&#39;t reproduce that in xf86-intel-video.
+
+So what I found when I set QT_AUTO_SCREEN_SCALE_FACTOR=1 and had my settings in .Xresources is it would doublescale giving me huge fonts.
+
+xrandr --output DP1 --scale 2x2 --auto --pos 0x0 --primary \
+       --output eDP1 --scale 1x1 --mode 3840x2160 --pos 5120x0
+
+I noticed that Qt5 apps look now fine on my external screen (Low DPI) but now super huge on my laptop screen HiDPI.
+
+Single Screen Laptop:
+
+xrandr --output eDP1 --scale 1x1 --mode 3840x2160 \
+       --output DP1 --off
+
+All good.
+
+Single Screen External:
+
+xrandr --output eDP1 --off \
+       --output DP1 --scale 2x2 --mode 2560x1600
+
+All good.
+
+Both screens! https://imgur.com/GOYZUm4
+
+xrandr --output eDP1 --scale 1x1 --mode 3840x2160 --pos 5120x0 --primary \
+       --output DP1 --scale 2x2 --mode 2560x1600 --pos 0x0
+
+Small fonts on external screen with Qt5.
+
+xrandr --output eDP1 --scale 1x1 --mode 3840x2160 --pos 5120x0 \
+       --output DP1 --scale 2x2 --mode 2560x1600 --pos 0x0 --primary
+
+Small fonts on laptop using Qt5.
+
+So it seems tied to Primary switch as to which screen it scales for. Fortunately when using dual monitors I basically never use virtualbox, wireshark or nvim-qt on the laptop screen. I found when no primary switch is used the eDP1 becomes primary.
+
+It looks like this might be a bug with Qt. https://bugreports.qt.io/browse/QTBUG-67928 &#34;This will not produce correct results on X as X fakes the physicalSize by default.&#34; which probably a hack for something else, god damn I hate X11.
+
+I guess time to go back to the drawing board. Your method should be able to work around this Qt bug (I do really think it is X11&#39;s fault) if I have it configured to scale for a single factor, ie non-HiDPI and HiDPI being both 2x.
+
+I looked at this to see if I could understand panning a bit better https://www.x.org/releases/X11R7.7/doc/randrproto/randrproto.txt and I think I came up with the panning numbers.
+
+[--panning  widthxheight[&#43;x&#43;y] ie 2560*2=5120 and 1600*2=3200 then move along by 3840 (move over by length of DP1). Which results in --panning 5120x3200&#43;5120&#43;0
+
+That results in this command:
+
+xrandr --dpi 220 --fb 8960x5360 \
+    --output eDP1 --mode 3840x2160 --pos 5120x0 \
+    --output DP1 --scale 2x2 --pos 0x0 --panning 5120x3200&#43;5120&#43;0 --primary
+
+Everything looks right. Using scrot you&#39;re able to see the whole thing ie 8960x5360 so that&#39;s useful to debug where your screens are. https://imgur.com/d7BGPJd
+
+I still think something isn&#39;t right though because there is a lot of useless black space below my screens that isn&#39;t being used that I created with fb. Any ideas Will?</div>
+</div>
+
+<div class="comment">
+	<div class="comment-header">
+		Posted by <span class="comment-name">tya99</span>
+		at <time>2018-08-02 05:22:10 -0700 PDT</time>
+	</div>
+	<div class="comment-text">Solved!
+
+The Qt related issue can be solved by doing QT_SCREEN_SCALE_FACTORS=&#34;2;2&#34;
+
+Which means you can use for your dual monitors:
+
+xrandr --output eDP1 --scale 1x1 --auto --pos 5120x0 --primary \
+       --output DP1 --scale 2x2 --auto --pos 0x0
+
+and for the external:
+
+xrandr --output eDP1 --off \
+       --output DP1 --scale 2x2 --auto
+
+or the internal single:
+
+xrandr --output eDP1 --off \
+       --output DP1 --scale 2x2 --auto
+
+&gt; I initially tried using --output eDP-1 --auto when I wanted to enable the laptop monitor after disabling it. However, I found this lost the --scale setting, so I had to either restart X or run the same xrandr command twice. Using --mode does not have this problem.
+
+That is now no longer the case. Using Xorg 1.20 I was able to use auto and the scale was kept.</div>
+</div>
+
+<div class="comment">
+	<div class="comment-header">
+		Posted by <span class="comment-name">Rakesh Singh</span>
+		at <time>2018-10-03 01:40:28 -0700 PDT</time>
+	</div>
+	<div class="comment-text">Thank you for sharing this information. I have been fiddling with my Macbook Pro 2015 running Centos 7 for a while and could never get the external monitor working optimally, until now.</div>
+</div>
+
+<div class="comment">
+	<div class="comment-header">
+		Posted by <span class="comment-name">Ibrahim</span>
+		at <time>2018-11-08 11:31:11 -0800 PST</time>
+	</div>
+	<div class="comment-text">This is great for those of us who can&#39;t use Wayland too (eg. my new laptop does not work without nVidia proprietary drivers, which seem to not support Wayland). Unfortunately though, I seem to get blurry text on the external (low-DPI) screen. I guess it&#39;s better than huge text, but kind of unsettling and probably will cause eye strain or something... but anyway, thanks for the information!</div>
+</div>
+
+<div class="comment">
+	<div class="comment-header">
+		Posted by <span class="comment-name">gollam</span>
+		at <time>2019-04-16 12:38:00 -0700 PDT</time>
+	</div>
+	<div class="comment-text">Thank you so much!</div>
+</div>
+
+<div class="comment">
+	<div class="comment-header">
+		Posted by <span class="comment-name">trulytrojan</span>
+		at <time>2019-05-17 15:08:36 -0700 PDT</time>
+	</div>
+	<div class="comment-text">How do you find out the list of displays? one used with &#34;---output&#34; key? I am on macos.</div>
+</div>
+
+<div class="comment">
+	<div class="comment-header">
+		Posted by <span class="comment-name">Abbas Akkasi</span>
+		at <time>2019-06-14 02:00:32 -0700 PDT</time>
+	</div>
+	<div class="comment-text">Hi, How it is possible to put the low dpi monitor in the left of HDPI laptop?
+I replaced --pos 3200x0 option with --left-of eDP-1-1 but it didn&#39;t work while using --right-of eDP-1-1 works well!!</div>
+</div>
+
+<div class="comment">
+	<div class="comment-header">
+		Posted by <span class="comment-name">tya99</span>
+		at <time>2019-07-18 10:53:40 -0700 PDT</time>
+	</div>
+	<div class="comment-text">&gt; How do you find out the list of displays? one used with &#34;---output&#34; key? I am on macos.
+
+You don&#39;t this is for people running X11.
+
+&gt; is possible to put the low dpi monitor in the left of HDPI laptop?
+&gt; I replaced --pos 3200x0 option with --left-of eDP-1-1 but it didn&#39;t work while using --right-of eDP-1-1 works well!!
+
+you need to use a negative value like --pos -3200x0</div>
+</div>
+
+<div class="comment">
+	<div class="comment-header">
+		Posted by <span class="comment-name">nab</span>
+		at <time>2019-07-30 03:19:31 -0700 PDT</time>
+	</div>
+	<div class="comment-text">Hi,
+
+I&#39;m also using similar scaling method on a dell XPS13 (model 9360, 3200x1800 primary screen, external 1920x1080 screen), to have the same DPI and interface sizes on both screens.
+
+$ xrandr --output DP-1 --scale 2x2 --fb 7040x2160 --pos 0x0 --mode 1920x1080; xrandr --output eDP-1 --pos 3840x0 --dpi 276.05x276.05
+
+The issue I ran into is with opengl accelerated programs. They seem to be really slow on the external screen in three quarters of the screen. If I move the window past half the screen horizontaly or verticaly with `glxgears` for example, the frame rate drops.
+
+I noticed that using `kitty` terminal, which uses OpenGL to be fast. I&#39;m using Qtile as a window manager, if the tiled terminal window is on the right, it gets unusable.
+
+I&#39;m on debian unstable, using the Xorg modeset driver using the internal intel chip.
+
+Anyone ran into this issue? Any idea where this comes from?
+
+Thanks,
+
+nab</div>
+</div>
+
+<div class="comment">
+	<div class="comment-header">
+		Posted by <span class="comment-name">nab</span>
+		at <time>2019-07-30 07:34:30 -0700 PDT</time>
+	</div>
+	<div class="comment-text">To complete my previous comment, after running some experiments:
+
+creating a /etc/X11/xorg.conf.d/20-intel.conf  file with this:
+
+Section &#34;Device&#34;
+  Identifier  &#34;Intel Graphics&#34;
+  Driver      &#34;intel&#34;
+EndSection
+
+This forces xorg to use the intel driver instead of the kernel modesetting driver (which is now the recommended way to do), seems to fix the issue.
+
+So it&#39;s a kernel modesetting driver issue, I think.
+
+Cheers,
+
+nab</div>
+</div>
+
+</article>
+
+<a href="index.html">Back</a>
+
+<h2>Comment</h2>
+
+<form id="comment-form" method="POST"
+	action="https://3m8wnld8si.execute-api.us-west-2.amazonaws.com/eggcorn">
+	<input type="hidden" name="url" value="https://blog.summercat.com/configuring-mixed-dpi-monitors-with-xrandr.html">
+
+	<label for="comment-name">Your name:</label>
+	<input type="text" id="comment-name" name="name"
+		required
+		placeholder="Your name">
+
+	<label for="comment-email">Your email (won't be publicly displayed):</label>
+	<input type="email" id="comment-email" name="email"
+		required
+		placeholder="Your email address">
+
+	<label for="comment-text">Your comment:</label>
+	<textarea id="comment-text" name="text"
+		required
+		placeholder="Your comment"></textarea>
+
+	<input type="submit" value="Comment">
+</form>
+</div>
+<footer>
+	<a href="index.html">Home</a>
+	<a href="about.html">About</a>
+	<a rel="alternate" type="application/rss+xml" href="rss.xml"
+		>RSS <img id="feed-icon" src="Feed-icon.svg" alt="Subscribe"></a>
+</footer>
